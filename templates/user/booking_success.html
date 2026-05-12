@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Booking Success | EVEase</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+rel="stylesheet">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Segoe UI',sans-serif;
+}
+
+body{
+background:
+linear-gradient(135deg,
+#030712,
+#081028,
+#020617);
+min-height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+padding:30px;
+color:white;
+}
+
+.success-card{
+width:100%;
+max-width:720px;
+background:
+rgba(255,255,255,.05);
+border:1px solid
+rgba(255,255,255,.08);
+backdrop-filter:blur(20px);
+border-radius:32px;
+padding:50px;
+box-shadow:
+0 0 50px rgba(0,0,0,.35);
+}
+
+.checkmark{
+width:120px;
+height:120px;
+background:#22c55e;
+border-radius:50%;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:60px;
+font-weight:700;
+margin:auto;
+box-shadow:
+0 0 30px rgba(34,197,94,.35);
+}
+
+.title{
+font-size:48px;
+font-weight:800;
+text-align:center;
+margin-top:25px;
+}
+
+.title span{
+color:#22c55e;
+}
+
+.subtitle{
+text-align:center;
+margin-top:10px;
+color:#94a3b8;
+font-size:18px;
+}
+
+.booking-box{
+margin-top:35px;
+background:#0f172a;
+padding:30px;
+border-radius:24px;
+border:1px solid
+rgba(255,255,255,.05);
+}
+
+.booking-item{
+display:flex;
+justify-content:space-between;
+margin-bottom:18px;
+font-size:17px;
+}
+
+.label{
+color:#94a3b8;
+}
+
+.value{
+font-weight:600;
+}
+
+.booking-id{
+color:#22c55e;
+font-weight:700;
+}
+
+.success-note{
+margin-top:18px;
+background:
+rgba(34,197,94,.1);
+padding:16px;
+border-radius:14px;
+text-align:center;
+color:#22c55e;
+font-weight:600;
+}
+
+/* BUTTONS */
+
+.button-group{
+display:grid;
+grid-template-columns:
+1fr 1fr;
+gap:18px;
+margin-top:35px;
+}
+
+.btn-custom{
+padding:18px;
+border:none;
+border-radius:18px;
+font-size:17px;
+font-weight:700;
+text-decoration:none;
+display:flex;
+align-items:center;
+justify-content:center;
+transition:.3s;
+cursor:pointer;
+}
+
+.btn-custom:hover{
+transform:translateY(-3px);
+}
+
+.navigate-btn{
+background:#f59e0b;
+color:white;
+}
+
+.dashboard-btn{
+background:#22c55e;
+color:white;
+}
+
+.book-btn{
+grid-column:span 2;
+background:#1e293b;
+color:white;
+}
+
+@media(max-width:768px){
+
+.button-group{
+grid-template-columns:1fr;
+}
+
+.book-btn{
+grid-column:auto;
+}
+
+.title{
+font-size:38px;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="success-card">
+
+<div class="checkmark">
+✓
+</div>
+
+<h1 class="title">
+Booking
+<span>Confirmed</span>
+</h1>
+
+<p class="subtitle">
+Your EV charging slot has been successfully reserved.
+</p>
+
+<div class="booking-box">
+
+<div class="booking-item">
+<span class="label">
+🎟 Booking ID
+</span>
+
+<span class="booking-id">
+EV{{ booking_id }}
+</span>
+</div>
+
+<div class="booking-item">
+<span class="label">
+⚡ Station
+</span>
+
+<span class="value">
+{{ station_name }}
+</span>
+</div>
+
+<div class="booking-item">
+<span class="label">
+🏙 City
+</span>
+
+<span class="value">
+{{ city }}
+</span>
+</div>
+
+<div class="booking-item">
+<span class="label">
+🔌 Charger Type
+</span>
+
+<span class="value">
+{{ charger_type }}
+</span>
+</div>
+
+<div class="booking-item">
+<span class="label">
+📅 Date
+</span>
+
+<span class="value">
+{{ booking_date }}
+</span>
+</div>
+
+<div class="booking-item">
+<span class="label">
+🕒 Time
+</span>
+
+<span class="value">
+{{ booking_time }}
+</span>
+</div>
+
+<div class="success-note">
+✅ Reservation successfully confirmed
+</div>
+
+</div>
+
+<div class="button-group">
+
+<a
+target="_blank"
+href="https://www.google.com/maps/dir/?api=1&destination={{ station_query }}"
+class="btn-custom navigate-btn">
+
+🧭 Navigate to Station
+
+</a>
+
+<a
+href="{{ url_for('user_dashboard') }}"
+class="btn-custom dashboard-btn">
+
+🏠 Dashboard
+
+</a>
+
+<a
+href="{{ url_for('find_your_charger') }}"
+class="btn-custom book-btn">
+
+⚡ Book Another Slot
+
+</a>
+
+</div>
+
+</div>
+
+</body>
+</html>
