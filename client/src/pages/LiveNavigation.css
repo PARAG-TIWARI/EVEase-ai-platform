@@ -1,0 +1,201 @@
+/* LiveNavigation.css */
+.live-nav-layout {
+  height: 100vh;
+  width: 100vw;
+  position: relative;
+  background: #020617;
+  overflow: hidden;
+}
+
+.nav-header-overlay {
+  position: absolute;
+  top: 2rem;
+  left: 2rem;
+  right: 2rem;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-status-badge {
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  padding: 0.75rem 1.5rem;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.live-dot {
+  width: 10px;
+  height: 10px;
+  background: var(--primary);
+  border-radius: 50%;
+  animation: pulse 1.5s infinite;
+}
+
+/* Simulated Map */
+.map-background {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
+  z-index: 1;
+}
+
+.map-grid-overlay {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(rgba(16, 185, 129, 0.05) 1px, transparent 1px),
+  linear-gradient(90deg, rgba(16, 185, 129, 0.05) 1px, transparent 1px);
+  background-size: 50px 50px;
+  transform: perspective(500px) rotateX(60deg) translateY(-100px) scale(2);
+  transform-origin: top center;
+  animation: moveGrid 10s linear infinite;
+}
+
+@keyframes moveGrid {
+  0% { transform: perspective(500px) rotateX(60deg) translateY(0) scale(2); }
+  100% { transform: perspective(500px) rotateX(60deg) translateY(50px) scale(2); }
+}
+
+.route-line {
+  position: absolute;
+  bottom: 20%;
+  left: 50%;
+  width: 6px;
+  height: 50vh;
+  background: linear-gradient(to top, var(--primary), transparent);
+  transform: translateX(-50%);
+  border-radius: 999px;
+  box-shadow: 0 0 20px var(--primary);
+}
+
+.car-marker {
+  position: absolute;
+  bottom: 20%;
+  left: 50%;
+  transform: translate(-50%, 50%);
+  background: var(--bg-card);
+  border: 2px solid var(--primary);
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.5rem;
+  color: white;
+  box-shadow: 0 0 30px rgba(16, 185, 129, 0.5);
+  z-index: 5;
+}
+
+.destination-marker {
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #ef4444;
+  font-size: 3rem;
+  filter: drop-shadow(0 0 15px rgba(239, 68, 68, 0.5));
+  animation: bounce 2s infinite;
+  z-index: 5;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translate(-50%, -50%); }
+  50% { transform: translate(-50%, -70%); }
+}
+
+/* Nav Dashboard Panel */
+.nav-dashboard-panel {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 800px;
+  background: var(--bg-panel);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  z-index: 10;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+}
+
+.nav-primary-stats {
+  display: flex;
+  align-items: center;
+  gap: 3rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.nav-eta h1 {
+  font-size: 4rem;
+  line-height: 1;
+  color: var(--primary);
+}
+
+.nav-eta span {
+  font-size: 1.5rem;
+  color: var(--text-muted);
+}
+
+.nav-eta p {
+  color: var(--text-main);
+  font-weight: 500;
+  margin-top: 0.5rem;
+}
+
+.nav-destination-info h3 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.nav-destination-info p {
+  color: var(--text-muted);
+}
+
+.nav-secondary-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.nav-stat {
+  background: var(--glass-heavy);
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--glass-light);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.nav-stat i {
+  font-size: 1.5rem;
+  color: var(--text-muted);
+}
+
+.nav-stat p {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 0.25rem;
+}
+
+.nav-stat h4 {
+  font-size: 1.1rem;
+}
+
+@media(max-width: 768px) {
+  .nav-primary-stats { flex-direction: column; gap: 1.5rem; text-align: center; }
+  .nav-secondary-stats { grid-template-columns: 1fr; }
+}
+

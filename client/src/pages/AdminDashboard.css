@@ -1,0 +1,92 @@
+/* AdminDashboard.css */
+.admin-sidebar .brand span {
+  color: #ef4444;
+}
+
+.admin-sidebar .nav-item.active a {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border-left-color: #ef4444;
+}
+
+.user-log-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: var(--glass-light);
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  border: 1px solid var(--glass-light);
+}
+
+.user-log-item h4 {
+  font-size: 0.95rem;
+  margin-bottom: 0.25rem;
+}
+
+.user-log-item p {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.badge-purple {
+  background: rgba(139, 92, 246, 0.2);
+  color: #c4b5fd;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge-danger {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge-gray {
+  background: var(--glass-heavy);
+  color: var(--text-muted);
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.danger-btn {
+  background: rgba(239, 68, 68, 0.1) !important;
+  border: 1px solid rgba(239, 68, 68, 0.3) !important;
+  color: #fca5a5 !important;
+}
+
+.danger-btn:hover {
+  background: rgba(239, 68, 68, 0.2) !important;
+  transform: translateX(5px) !important;
+}
+
+.warning-btn {
+  background: rgba(245, 158, 11, 0.1) !important;
+  border: 1px solid rgba(245, 158, 11, 0.3) !important;
+  color: #fcd34d !important;
+}
+
+.warning-btn:hover {
+  background: rgba(245, 158, 11, 0.2) !important;
+  transform: translateX(5px) !important;
+}
+
+.purple-btn {
+  background: rgba(139, 92, 246, 0.1) !important;
+  border: 1px solid rgba(139, 92, 246, 0.3) !important;
+  color: #c4b5fd !important;
+}
+
+.purple-btn:hover {
+  background: rgba(139, 92, 246, 0.2) !important;
+  transform: translateX(5px) !important;
+}
+

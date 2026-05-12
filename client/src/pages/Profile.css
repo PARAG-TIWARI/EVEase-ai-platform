@@ -1,0 +1,180 @@
+/* Profile.css */
+.profile-main {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 4rem 2rem;
+}
+
+.profile-container {
+  width: 100%;
+  max-width: 800px;
+  animation: fadeUp 0.6s ease-out forwards;
+}
+
+.profile-header-banner {
+  height: 200px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(99, 102, 241, 0.2) 100%);
+  border-radius: 24px 24px 0 0;
+  position: relative;
+  border: 1px solid var(--border);
+  border-bottom: none;
+}
+
+.profile-avatar-large {
+  width: 120px;
+  height: 120px;
+  background: linear-gradient(135deg, var(--secondary), var(--primary));
+  border-radius: 50%;
+  position: absolute;
+  bottom: -60px;
+  left: 40px;
+  border: 6px solid var(--bg-panel);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 3rem;
+  font-weight: 800;
+  color: white;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+}
+
+.profile-details-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: 0 0 24px 24px;
+  padding: 5rem 40px 40px;
+}
+
+.profile-title {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 3rem;
+}
+
+.profile-title h2 {
+  font-size: 2rem;
+  font-weight: 800;
+}
+
+.role-badge {
+  padding: 0.25rem 1rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.badge-premium {
+  background: rgba(139, 92, 246, 0.2);
+  color: #c4b5fd;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.badge-free {
+  background: var(--glass-heavy);
+  color: var(--text-muted);
+  border: 1px solid var(--glass-heavy);
+}
+
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.profile-form .form-group {
+  margin-bottom: 0;
+}
+
+.profile-form label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.profile-form .form-control {
+  width: 100%;
+  background: var(--glass-light);
+  border: 1px solid var(--border);
+  padding: 1rem;
+  border-radius: 12px;
+  color: var(--text-main);
+  transition: all 0.3s;
+}
+
+.profile-form .form-control:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: rgba(16, 185, 129, 0.05);
+}
+
+.vehicle-card {
+  background: var(--glass-light);
+  border: 1px solid var(--border);
+  padding: 1.5rem;
+  border-radius: var(--radius-md);
+  transition: all 0.3s;
+}
+
+.vehicle-card:hover {
+  border-color: var(--primary);
+  background: rgba(16, 185, 129, 0.02);
+}
+
+.vehicle-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.75rem;
+}
+
+.vehicle-header h4 {
+  font-size: 1.1rem;
+  color: var(--text-main);
+}
+
+.vehicle-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.icon-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.2s;
+}
+
+.icon-btn:hover {
+  background: var(--glass-heavy);
+  color: var(--text-main);
+}
+
+.text-danger:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+@media(max-width: 768px) {
+  .form-row { grid-template-columns: 1fr; }
+  .profile-avatar-large { left: 50%; transform: translateX(-50%); }
+  .profile-title { flex-direction: column; text-align: center; margin-top: 2rem; }
+}
+

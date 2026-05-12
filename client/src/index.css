@@ -1,0 +1,176 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root, .dark-theme {
+  /* Professional Dark Slate SaaS Palette */
+  --bg-dark: #0B0F19;
+  --bg-darker: #06090F;
+  
+  /* Very subtle emerald glow on a deep slate background */
+  --bg-gradient: radial-gradient(circle at 15% 0%, rgba(16, 185, 129, 0.05), transparent 40%), linear-gradient(135deg, #0B0F19 0%, #020617 100%);
+  
+  /* Glassmorphism Bases */
+  --bg-panel: rgba(15, 23, 42, 0.6);
+  --bg-card: rgba(30, 41, 59, 0.4);
+  --glass-light: rgba(255, 255, 255, 0.05);
+  --glass-heavy: rgba(255, 255, 255, 0.1);
+  
+  --border: rgba(255, 255, 255, 0.08);
+  --border-hover: rgba(16, 185, 129, 0.4);
+  
+  /* Emerald / Olive Accents (Keep primary green but use sparingly) */
+  --primary: #10b981;
+  --primary-hover: #059669;
+  --secondary: #34d399; 
+  
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-dark: #0f172a;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+}
+
+.light-theme {
+  /* Clean Light SaaS Palette */
+  --bg-dark: #f8fafc;
+  --bg-darker: #f1f5f9;
+  
+  /* Subtle light gray gradient with a hint of mint */
+  --bg-gradient: radial-gradient(circle at 85% 0%, rgba(16, 185, 129, 0.04), transparent 40%), linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+  
+  --bg-panel: rgba(255, 255, 255, 0.8);
+  --bg-card: rgba(255, 255, 255, 0.95);
+  --glass-light: rgba(0, 0, 0, 0.03);
+  --glass-heavy: rgba(0, 0, 0, 0.08);
+  
+  --border: rgba(15, 23, 42, 0.08);
+  --border-hover: rgba(16, 185, 129, 0.5);
+  
+  --primary: #059669;
+  --primary-hover: #047857;
+  --secondary: #10b981; 
+  
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --text-dark: #f8fafc;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+body {
+  background-color: var(--bg-dark);
+  background-image: var(--bg-gradient);
+  background-attachment: fixed;
+  color: var(--text-main);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background 0.5s ease, color 0.5s ease;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+/* Base Typography Tweaks */
+h1, h2, h3, h4, h5, h6 {
+  letter-spacing: -0.02em;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+p {
+  letter-spacing: -0.01em;
+}
+
+/* Universal Button Styles & Animations */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%; width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s ease;
+  z-index: -1;
+}
+
+.btn:hover::before {
+  left: 100%;
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  color: var(--bg-dark) !important;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.5);
+}
+
+.btn-outline {
+  background-color: transparent;
+  border: 1px solid var(--border);
+  color: var(--primary);
+}
+
+.btn-outline:hover {
+  border-color: var(--primary);
+  background-color: rgba(16, 185, 129, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+}
+
+/* Animations */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes glitch {
+  0% { transform: translate(0) }
+  20% { transform: translate(-2px, 2px) }
+  40% { transform: translate(-2px, -2px) }
+  60% { transform: translate(2px, 2px) }
+  80% { transform: translate(2px, -2px) }
+  100% { transform: translate(0) }
+}
+
+.glitch-hover:hover {
+  animation: glitch 0.3s cubic-bezier(.25, .46, .45, .94) both infinite;
+  color: var(--primary);
+}
+
+.fade-in {
+  animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
