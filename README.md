@@ -89,7 +89,7 @@ EVEase-ai-platform/
 - Python 3.10 or newer.
 - A Google Maps API key with the Directions API enabled.
 - An OpenRouter API key.
-- Windows is required for the convenience run_app.bat; the individual services can be started manually on other operating systems.
+- The convenience run_app.bat file is Windows-only and currently contains an absolute Python path from another workstation. Start the services manually using the commands below until that launcher is separately corrected.
 
 ### 1. Configure the recommendation service
 
@@ -105,6 +105,8 @@ source .venv/bin/activate
 
 python -m pip install --upgrade pip
 pip install -r requirements.txt
+# api.py uses FastAPI and Uvicorn, which are not listed in this folder's current requirements.txt:
+pip install fastapi "uvicorn[standard]"
 ~~~
 
 Copy .env.example to .env and set your own provider credentials:
@@ -112,8 +114,6 @@ Copy .env.example to .env and set your own provider credentials:
 ~~~env
 GOOGLE_MAPS_API_KEY=your_google_maps_api_key
 OPENROUTER_API_KEY=your_openrouter_api_key
-FRONTEND_URLS=http://localhost:5173,http://127.0.0.1:5173
-PORT=8000
 ~~~
 
 Start the API from services/ev-ai-agent:
@@ -122,7 +122,7 @@ Start the API from services/ev-ai-agent:
 python api.py
 ~~~
 
-The API runs on http://localhost:8000. Check GET /health and open http://localhost:8000/docs for interactive API documentation.
+The current API entrypoint listens on port 8000. Open http://localhost:8000/docs for interactive API documentation. There is no /health route in the current main-branch code.
 
 ### 2. Start the React frontend
 
@@ -133,11 +133,7 @@ cd client
 npm ci
 ~~~
 
-Create client/.env (or the Vite-supported local environment file) with:
-
-~~~env
-VITE_API_BASE_URL=http://localhost:8000
-~~~
+The current AI Planner code calls http://localhost:8000/recommend directly. It does not yet read VITE_API_BASE_URL from an environment file. Keep the API running locally on port 8000 for this version; changing the API base URL is a separate code/configuration task.
 
 Then start the frontend:
 
@@ -162,9 +158,7 @@ python app.py
 
 ### 4. Windows convenience launcher
 
-After configuring both Python services and the frontend, run run_app.bat from the repository root. It opens separate terminal windows for the FastAPI service, Flask prototype and Vite frontend.
-
-The launcher uses the Windows Python launcher (py -3) rather than a developer-specific absolute Python installation path.
+The current run_app.bat contains an absolute Python executable path from another workstation. It may not run on your machine. Use the manual service startup commands above instead; correcting the launcher is a separate code change.
 
 ## Checks
 
@@ -179,10 +173,10 @@ npm run build
 Recommendation service (from services/ev-ai-agent after installing its requirements):
 
 ~~~bash
-python -c "from fastapi.testclient import TestClient; from api import app; c=TestClient(app); print(c.get('/health').json())"
+python -c "from fastapi.testclient import TestClient; from api import app; c=TestClient(app); print(c.get('/docs').status_code)"
 ~~~
 
-The command above is a small health-route smoke check, not a full end-to-end test. The repository does not currently include a comprehensive automated test suite for the recommendation workflow, ranking edge cases, provider failures or Flask security controls.
+The command above checks that the FastAPI documentation route responds; it is not a health check or a provider integration test. The repository does not currently include a comprehensive automated test suite for the recommendation workflow, ranking edge cases, provider failures or Flask security controls.
 
 ## Known prototype limitations
 
@@ -195,6 +189,8 @@ The command above is a small health-route smoke check, not a full end-to-end tes
 - The navigation screen uses simulated ETA/distance countdowns and a local confirmation state. It does not reserve a real charging port.
 - The charging-session and payment-related UI is not connected to a charging controller or payment processor.
 - The Flask prototype uses a simple legacy authentication/database implementation. Do not expose it publicly without a separate security rewrite.
+- The API currently allows all CORS origins, methods and headers with credentials enabled, returns internal exception text, and has no authentication or rate limiting. Keep it local until the separate API hardening work is completed.
+- The AI Planner's API URL is hard-coded to localhost:8000 in the current main branch.
 
 ## Further engineering work
 
