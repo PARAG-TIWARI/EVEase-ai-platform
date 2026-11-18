@@ -31,9 +31,9 @@ The FastAPI endpoint validates:
 - Battery percentage in the 0–100 range.
 - Connector type with a bounded length.
 
-The API's browser CORS allowlist is configured through FRONTEND_URLS, with localhost development origins as the default. The API does not require credentialed CORS. The recommendation workflow is synchronous, so the route is declared as a regular synchronous FastAPI handler to let FastAPI run it in its worker pool.
+The current main-branch API uses wildcard CORS origins, allows credentials, all methods and all headers. It does not read FRONTEND_URLS. The recommendation route is declared async but calls the synchronous run_workflow function directly, which can block the event loop during provider/network work. The request schema uses basic types without explicit length or battery-range constraints. Unexpected exceptions are returned to callers with their internal message, and the API currently has no /health endpoint.
 
-The API currently has no user authentication, per-user quota or rate limiting. Public exposure could allow unauthenticated callers to consume Maps/OpenRouter quota. Add an authentication or gateway layer and provider usage controls before deployment.
+The API also has no user authentication, per-user quota or rate limiting. Public exposure could allow unauthenticated callers to consume Maps/OpenRouter quota. Keep it local until a separate code change adds and verifies strict CORS, input validation, safe errors, non-blocking execution and usage controls.
 
 When Google Maps Directions fails, maps_tool.py catches the exception and returns a fixed demonstration route with mock: true. The caller should preserve and display this provenance so a user does not mistake mock route distance or ETA for a live result.
 
@@ -48,6 +48,8 @@ The following items should be described as prototype UI or fixture-driven behavi
 - The charging session page uses simulated values rather than a charger controller or vehicle connection.
 - Subscription/payment UI is not connected to a payment gateway.
 - The React AuthContext stores a locally selected role in client state. It is not authentication or secure server-side role-based access control.
+
+The current AIPlanner.jsx hard-codes the recommendation URL to http://localhost:8000/recommend; it does not yet read VITE_API_BASE_URL. The current API requirements file also omits FastAPI and Uvicorn even though api.py imports them. These are known setup/runtime issues and are intentionally not changed by this documentation-only branch.
 
 ## 4. Legacy Flask + SQLite prototype security concerns
 
