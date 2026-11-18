@@ -10,12 +10,6 @@ From this directory:
 npm ci
 ~~~
 
-Copy .env.example to .env.local and set the recommendation API URL:
-
-~~~env
-VITE_API_BASE_URL=http://localhost:8000
-~~~
-
 Start the development server:
 
 ~~~bash
@@ -24,7 +18,7 @@ npm run dev
 
 Open http://localhost:5173.
 
-The AI Planner reads its API base URL from VITE_API_BASE_URL and otherwise defaults to http://localhost:8000. Do not add Google Maps or OpenRouter secrets to Vite environment variables; Vite values are available to browser code.
+The current AI Planner calls http://localhost:8000/recommend directly; it does not read VITE_API_BASE_URL yet. Keep the recommendation API running locally on port 8000. Do not add Google Maps or OpenRouter secrets to Vite environment variables; Vite values are available to browser code.
 
 ## Quality checks
 
