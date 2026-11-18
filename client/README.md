@@ -1,16 +1,34 @@
-# React + Vite
+# EVEase React frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is the React 19 + Vite client for the EVEase prototype.
 
-Currently, two official plugins are available:
+## Local setup
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+From this directory:
 
-## React Compiler
+~~~bash
+npm ci
+~~~
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Start the development server:
 
-## Expanding the ESLint configuration
+~~~bash
+npm run dev
+~~~
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Open http://localhost:5173.
+
+The current AI Planner calls http://localhost:8000/recommend directly; it does not read VITE_API_BASE_URL yet. Keep the recommendation API running locally on port 8000. Do not add Google Maps or OpenRouter secrets to Vite environment variables; Vite values are available to browser code.
+
+## Quality checks
+
+~~~bash
+npm run lint
+npm run build
+~~~
+
+## Notes
+
+- User role selection is maintained in client-side state and is only a UI demonstration.
+- Navigation, reservation, charging and payment screens contain simulated values/state.
+- For the full project architecture and limitations, see the repository root README and docs/architecture-and-prototype-limitations.md.

@@ -1,92 +1,209 @@
-# ⚡ EVEase — AI-Powered EV Charging SaaS Platform
+# EVEase — AI-Assisted EV Charging Planner
 
-> An enterprise-grade, full-stack SaaS platform for electric vehicle drivers and fleet managers. EVEase combines agentic AI route orchestration, real-time Google Maps telemetry, live charging session tracking, and intelligent station discovery into a single, premium interface.
+EVEase is a student portfolio project exploring how route information, EV battery level, connector compatibility and a transparent scoring model can be combined to recommend charging stops.
 
-**Lead Developer:** Parag Tiwari  
-**Tech Stack:** React 19 + Vite · FastAPI · LangGraph + LangChain · Google Maps API
+The repository contains a React + Vite interface, a FastAPI/LangGraph recommendation service, and an older Flask/SQLite application prototype. The AI recommender uses Google Maps Directions for a route, a **local JSON charger fixture** for candidate stations, deterministic scoring to rank those candidates, and OpenRouter to generate a natural-language explanation.
 
----
+> **Project status:** Prototype / academic demonstration. It is not connected to a live charging-network availability feed, payment gateway, vehicle telematics system or production reservation service. Some UI elements intentionally simulate live navigation, charging and booking behaviour. See [Architecture and prototype limitations](docs/architecture-and-prototype-limitations.md) before interpreting the feature list as deployed functionality.
 
-## Core Idea
+## What is implemented
 
-Range anxiety is the #1 barrier to EV adoption. EVEase eliminates it by providing an **AI-first** platform that doesn't just *find* chargers — it **orchestrates the entire charging journey**. From intelligent station scoring to live session tracking and auto-payment, the platform handles everything a driver needs in one place.
+### AI-assisted charging recommendation
 
----
+1. The user provides origin, destination, current battery percentage and connector type.
+2. The FastAPI service calls Google Maps Directions to obtain route distance, duration and route geometry. When the provider call fails, the current tool returns a fixed mock route and marks the result as mock.
+3. The charger tool reads candidate records from services/ev-ai-agent/data/chargers.json, filters by connector type and active status, then orders the records by the pre-filled distance_from_route_km value.
+4. A deterministic scoring function ranks the candidates and returns a score breakdown.
+5. OpenRouter is used to generate a short explanation for the highest-ranked candidate. A local fallback explanation is returned when the LLM call fails.
 
-## Features
+The current recommender does not query a live EV charging operator API for the number of currently available ports, actual queue length, real-time prices or station operational status. Those fields are values in the checked-in local data file.
 
-### 1. 🤖 AI Recommender (Agentic Routing)
-An LLM-powered agent (LangGraph + LangChain) analyzes your battery level, connector type, destination, traffic, and real-time station loads. It returns a **ranked list of chargers** with transparent score breakdowns (availability, speed, detour penalty, wait time).
+### Other project areas
 
-### 2. 📍 EV Charging Station Locator
-Dual discovery system: **Manual Search** with live Google Maps integration for browsing, plus the AI Recommender for intelligent, data-driven station selection.
+- React dashboard with manual-search, planner, profile and navigation-style pages.
+- A Flask + SQLite application prototype for legacy station search and booking flows.
+- A separate Streamlit UI for exploring the recommendation service.
+- Local development launch script for Windows.
 
-### 3. ⚡ Real-Time Charger Availability
-Station availability (e.g., "2/4 Slots Available") is pulled from the agentic backend and displayed alongside each recommendation, ensuring drivers never arrive at a full station.
+## Technology
 
-### 4. 🅿️ Slot Booking & Reservation
-One-click port reservation from the Live Navigation dashboard. Once reserved, the UI confirms with a "Slot Reserved" badge and holds the port for 30 minutes.
+| Area | Technologies |
+| --- | --- |
+| Frontend | React 19, Vite, React Router |
+| Recommendation API | Python, FastAPI, Pydantic, Uvicorn |
+| Workflow | LangGraph |
+| Route data | Google Maps Directions API |
+| Candidate station data | Local JSON fixture |
+| Ranking | Deterministic Python scoring |
+| Recommendation explanation | OpenRouter API using an OpenAI-compatible client |
+| Legacy web prototype | Flask, SQLite |
+| Map display | Google Maps embed |
 
-### 5. ⏱️ Live Queue Monitoring
-The AI agent calculates estimated wait times per station based on current occupancy and historical patterns. Wait time is displayed as a core metric in every recommendation card.
+## Recommendation scoring
 
-### 6. 🗺️ Navigation & Route Guidance
-Full-screen Google Maps navigation overlay with live ETA countdown, distance tracking, and battery preconditioning status. Seamlessly launched from the AI Recommender via the "Let's Go!" button.
+The current ranking tool calculates five positive factors and four penalties.
 
-### 7. 💳 Online Payment Integration
-Subscription tier management (Free / Pro / Enterprise) and per-session Auto-Pay authorization on the Navigation dashboard. Payment gateway ready for Stripe integration.
+**Positive factors**
+- Availability ratio: available_slots / total_slots
+- Charging speed: min(power_kw / 150, 1.0)
+- Battery safety: fixed score based on the submitted battery percentage
+- Route compatibility: score based on the stored detour-distance field
+- Station rating: station_rating / 5
 
-### 8. 🔋 Charging Session Tracking
-Real-time charging dashboard with animated battery fill, live kW delivery rate, energy consumed (kWh), and accumulated cost (₹). Includes power curve simulation that slows delivery above 80% SoC.
+**Penalties**
+- Detour distance
+- Stored wait-time value
+- Stored price per kWh
+- A second detour-related traffic penalty
 
-### 9. ⭐ User Reviews & Ratings
-Star ratings and review counts displayed on every station card in both the AI Recommender results and Manual Search listings.
+The factors are currently combined using fixed coefficients in the source code. They are a prototype ranking heuristic, not a calibrated optimisation model. In particular, the route-path coordinates are not used to calculate each charger's geographic distance from the route; the ranking uses the pre-populated distance_from_route_km field.
 
----
+## Repository structure
 
-## Architecture
-
-```
+~~~text
 EVEase-ai-platform/
-├── client/                  # React 19 + Vite Frontend
+├── client/                      # React + Vite interface
 │   └── src/
-│       ├── components/      # Sidebar, ProtectedRoute, CustomSelect
-│       ├── context/         # AuthContext, ThemeContext
-│       └── pages/           # All page components + CSS modules
+│       ├── components/
+│       ├── context/
+│       └── pages/
 ├── services/
-│   └── ev-ai-agent/         # FastAPI + LangGraph AI Backend
-│       ├── agents/          # LangGraph agent definitions
-│       ├── tools/           # Google Maps, charger DB tools
-│       ├── api.py           # FastAPI server (port 8000)
-│       └── app.py           # Streamlit UI (reference)
-├── server/                  # Flask backend (port 5000)
-└── run_app.bat              # One-click launcher (Windows)
-```
+│   └── ev-ai-agent/
+│       ├── agents/               # Recommendation agent
+│       ├── tools/                 # Maps, charger data, scoring, LLM
+│       ├── data/chargers.json     # Local demonstration data
+│       ├── api.py                 # FastAPI endpoint
+│       ├── workflow.py            # LangGraph workflow
+│       └── app.py                 # Streamlit interface
+├── server/                       # Legacy Flask + SQLite prototype
+├── requirements.txt              # Flask prototype dependencies
+├── SETUP.md
+└── run_app.bat
+~~~
 
----
+## Local development
 
-## Role-Based Access
+### Prerequisites
 
-| Role | Access |
-|------|--------|
-| **Free** | Dashboard, Manual Search, Profile, Subscription page |
-| **Premium** | + AI Recommender, EV.ai Consultant, Live Navigation |
-| **Admin** | + System Command Center, Vulnerability Scanner |
+- Node.js and npm (the frontend package lock is the source of the exact dependency versions).
+- Python 3.10 or newer.
+- A Google Maps API key with the Directions API enabled.
+- An OpenRouter API key.
+- The convenience run_app.bat file is Windows-only and currently contains an absolute Python path from another workstation. Start the services manually using the commands below until that launcher is separately corrected.
 
----
+### 1. Configure the recommendation service
 
-## UI/UX
+~~~bash
+cd services/ev-ai-agent
+python -m venv .venv
 
-- **Dark/Light Theme Toggle** with full glassmorphism support
-- **Collapsible Sidebar** with localStorage persistence
-- **3D Isometric Cyber-Map** on the landing page with mouse-tracking parallax
-- **Bento Grid** feature showcase with live mock telemetry
-- Smooth micro-animations, hover effects, and CSS transitions throughout
+# Windows PowerShell
+.venv\Scripts\Activate.ps1
 
----
+# macOS / Linux
+source .venv/bin/activate
 
-## License
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+# api.py uses FastAPI and Uvicorn, which are not listed in this folder's current requirements.txt:
+pip install fastapi "uvicorn[standard]"
+~~~
 
-This project is developed for academic and demonstration purposes.
+Copy .env.example to .env and set your own provider credentials:
 
-© 2026 EVEase AI Platform — Parag Tiwari
+~~~env
+GOOGLE_MAPS_API_KEY=your_google_maps_api_key
+OPENROUTER_API_KEY=your_openrouter_api_key
+~~~
+
+Start the API from services/ev-ai-agent:
+
+~~~bash
+python api.py
+~~~
+
+The current API entrypoint listens on port 8000. Open http://localhost:8000/docs for interactive API documentation. There is no /health route in the current main-branch code.
+
+### 2. Start the React frontend
+
+Open a second terminal:
+
+~~~bash
+cd client
+npm ci
+~~~
+
+The current AI Planner code calls http://localhost:8000/recommend directly. It does not yet read VITE_API_BASE_URL from an environment file. Keep the API running locally on port 8000 for this version; changing the API base URL is a separate code/configuration task.
+
+Then start the frontend:
+
+~~~bash
+npm run dev
+~~~
+
+Open http://localhost:5173.
+
+### 3. Optional legacy Flask prototype
+
+The Flask app uses the SQLite file under server/ through server/DBConnection.py. From the repository root:
+
+~~~bash
+pip install -r requirements.txt
+cd server
+python setup_db.py
+python app.py
+~~~
+
+**Warning:** setup_db.py deletes and recreates the local SQLite database. Do not run it against a database that contains data you need. The Flask prototype currently contains demo-grade authentication and security weaknesses and should only be run locally with disposable data. See the security review.
+
+### 4. Windows convenience launcher
+
+The current run_app.bat contains an absolute Python executable path from another workstation. It may not run on your machine. Use the manual service startup commands above instead; correcting the launcher is a separate code change.
+
+## Checks
+
+Frontend:
+
+~~~bash
+cd client
+npm run lint
+npm run build
+~~~
+
+Recommendation service (from services/ev-ai-agent after installing its requirements):
+
+~~~bash
+python -c "from fastapi.testclient import TestClient; from api import app; c=TestClient(app); print(c.get('/docs').status_code)"
+~~~
+
+The command above checks that the FastAPI documentation route responds; it is not a health check or a provider integration test. The repository does not currently include a comprehensive automated test suite for the recommendation workflow, ranking edge cases, provider failures or Flask security controls.
+
+## Known prototype limitations
+
+- Charger records, availability, ratings, prices and wait times used by the AI recommender come from local JSON data.
+- The charger tool does not calculate real geographic distance from the Google route; it sorts by a stored detour field.
+- If Google Maps Directions fails, the service substitutes a fixed mock route.
+- The recommendation score uses hand-selected coefficients and has not been calibrated against user outcomes.
+- OpenRouter generates the prose explanation; the numerical ranking is deterministic Python logic.
+- Client-side role selection is a UI demonstration, not secure role-based access control.
+- The navigation screen uses simulated ETA/distance countdowns and a local confirmation state. It does not reserve a real charging port.
+- The charging-session and payment-related UI is not connected to a charging controller or payment processor.
+- The Flask prototype uses a simple legacy authentication/database implementation. Do not expose it publicly without a separate security rewrite.
+- The API currently allows all CORS origins, methods and headers with credentials enabled, returns internal exception text, and has no authentication or rate limiting. Keep it local until the separate API hardening work is completed.
+- The AI Planner's API URL is hard-coded to localhost:8000 in the current main branch.
+
+## Further engineering work
+
+1. Replace the charger JSON fixture with a documented, licensed and genuinely current station-data source.
+2. Calculate charger-to-route detour distance from coordinates rather than reading a pre-filled field.
+3. Add source timestamps, freshness indicators and explicit unknown-availability states.
+4. Add tests for ranking behaviour, connector compatibility, route-provider fallback and malformed inputs.
+5. Add authentication and server-side authorisation before offering booking or account features.
+6. Replace simulated navigation, reservation, charging and payment UI with real provider integrations only when those integrations exist.
+7. Separate or retire the legacy Flask prototype after deciding which backend owns each product capability.
+
+## Author
+
+**Parag Tiwari** · B.Tech Computer Science and Engineering student
+
+[GitHub](https://github.com/PARAG-TIWARI) · [Repository](https://github.com/PARAG-TIWARI/EVEase-ai-platform)
