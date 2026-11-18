@@ -21,6 +21,9 @@ __pycache__/
 *.pyc
 *.pyo
 
+# Local SQLite database (the existing tracked copy requires separate review)
+server/ev_db.sqlite
+
 # OS
 .DS_Store
 Thumbs.db

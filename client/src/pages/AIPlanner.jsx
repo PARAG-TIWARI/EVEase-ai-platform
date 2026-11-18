@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import CustomSelect from '../components/CustomSelect';
 import './AIPlanner.css';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+
 export default function AIPlanner() {
   const navigate = useNavigate();
   const [source, setSource] = useState('');
@@ -42,7 +44,7 @@ export default function AIPlanner() {
     setActiveRecommendation(null);
 
     try {
-      const response = await fetch('http://localhost:8000/recommend', {
+      const response = await fetch(`${API_BASE_URL}/recommend`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
