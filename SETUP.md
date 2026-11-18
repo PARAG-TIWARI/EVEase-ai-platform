@@ -8,7 +8,7 @@ This guide covers the React frontend, the FastAPI/LangGraph recommendation API, 
 - Python 3.10 or newer.
 - A Google Maps API key with Directions API access.
 - An OpenRouter API key.
-- Windows only for run_app.bat; individual services can be started manually on other platforms.
+- The current run_app.bat contains an absolute Python path from another workstation; use the manual commands below instead.
 
 ## 1. AI recommendation API
 
@@ -20,6 +20,8 @@ py -3 -m venv .venv
 .venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 pip install -r requirements.txt
+# api.py imports FastAPI and Uvicorn, but they are missing from the current requirements.txt:
+pip install fastapi "uvicorn[standard]"
 Copy-Item .env.example .env
 ~~~
 
@@ -28,8 +30,6 @@ Edit services/ev-ai-agent/.env:
 ~~~env
 GOOGLE_MAPS_API_KEY=your_google_maps_api_key
 OPENROUTER_API_KEY=your_openrouter_api_key
-FRONTEND_URLS=http://localhost:5173,http://127.0.0.1:5173
-PORT=8000
 ~~~
 
 Run the API from services/ev-ai-agent:
@@ -40,11 +40,10 @@ python api.py
 
 The service listens on http://localhost:8000.
 
-- Health check: GET http://localhost:8000/health
 - Interactive API documentation: http://localhost:8000/docs
 - Recommendation endpoint: POST http://localhost:8000/recommend
 
-The API validates battery percentage (0–100) and basic string lengths. It has no user authentication or per-user rate limit, so keep it local or protect it behind an appropriate gateway before public exposure.
+The current main-branch API does not expose a /health endpoint. Its request model has no explicit range or length constraints, its CORS configuration currently allows all origins/methods/headers with credentials enabled, and its error handler returns internal exception text. It has no authentication or rate limiting. Keep it local until the API hardening changes are separately applied and tested.
 
 ### Optional Streamlit interface
 
@@ -63,14 +62,9 @@ Open a second terminal from the repository root:
 ~~~powershell
 cd client
 npm ci
-Copy-Item .env.example .env.local
 ~~~
 
-The example file sets:
-
-~~~env
-VITE_API_BASE_URL=http://localhost:8000
-~~~
+The current AIPlanner.jsx calls http://localhost:8000/recommend directly; this version does not read VITE_API_BASE_URL from an environment file. Keep the API running on port 8000 for local use. Configurable API URLs are a separate code change.
 
 Start the frontend:
 
@@ -80,7 +74,7 @@ npm run dev
 
 Open http://localhost:5173.
 
-The AI Planner reads its API base URL from VITE_API_BASE_URL. Vite variables are public frontend configuration; do not put Google Maps or OpenRouter API keys in the client environment file.
+The API URL is currently hard-coded in the frontend source. Do not put Google Maps or OpenRouter API keys in client-side environment variables; Vite variables are public browser configuration.
 
 ## 3. Optional legacy Flask + SQLite prototype
 
@@ -106,14 +100,7 @@ The Flask prototype listens on http://localhost:5000.
 
 ## 4. Windows one-click launcher
 
-After installing dependencies and creating the AI service .env, run run_app.bat from the repository root.
-
-The launcher:
-- Uses services/ev-ai-agent/.venv when it exists, otherwise py -3.
-- Uses server/.venv when it exists, otherwise py -3.
-- Starts the React frontend after checking that client/node_modules exists.
-
-The launcher does not install dependencies or create databases automatically.
+The current run_app.bat contains a workstation-specific absolute Python executable path and may fail on other computers. Use the manual commands in Sections 1–3 instead. Fixing that launcher is a separate code change.
 
 ## 5. Quality checks
 
@@ -125,23 +112,23 @@ npm run lint
 npm run build
 ~~~
 
-FastAPI health smoke test (with AI service dependencies installed and its .env configured):
+FastAPI documentation-route smoke test (with the API dependencies installed and its .env configured):
 
 ~~~powershell
 cd services/ev-ai-agent
-python -c "from fastapi.testclient import TestClient; from api import app; c=TestClient(app); print(c.get('/health').json())"
+python -c "from fastapi.testclient import TestClient; from api import app; c=TestClient(app); print(c.get('/docs').status_code)"
 ~~~
 
-These are suggested checks. Do not report them as passing until you have run them locally or reviewed a passing CI run.
+This only checks that the API docs route responds; it does not test Google Maps, OpenRouter or recommendation behaviour. These are suggested checks. Do not report them as passing until you have run them locally or reviewed a passing CI run.
 
 ## Troubleshooting
 
 | Symptom | Check |
 | --- | --- |
-| Recommendation request fails | Confirm FastAPI is running and VITE_API_BASE_URL points to it |
-| CORS error | Add the exact frontend origin to FRONTEND_URLS, then restart FastAPI |
+| Recommendation request fails | Confirm FastAPI is running on port 8000 and check the API logs |
+| CORS/security configuration | The current API permits all origins with credentials. Do not expose it publicly until the separate CORS hardening change is applied |
 | Google Maps route fails | Check the Directions API key, API enablement and provider quota; the code falls back to a fixed mock route on provider error |
 | AI explanation falls back | Check the OpenRouter key, model access and provider quota |
 | Frontend dependency error | Run npm ci from client/ |
-| run_app.bat cannot find Python | Install the Python launcher (py) or create the relevant local .venv |
+| run_app.bat cannot find Python | The current batch file uses a workstation-specific absolute Python path; start each service manually instead |
 | Flask demo login/database issue | Recreate only a disposable local SQLite database with python setup_db.py; this overwrites the existing file |
