@@ -29,6 +29,8 @@ source .venv/bin/activate
 
 python -m pip install --upgrade pip
 pip install -r requirements.txt
+# api.py imports FastAPI and Uvicorn, which are absent from the current requirements.txt:
+pip install fastapi "uvicorn[standard]"
 ~~~
 
 Copy .env.example to .env and set:
@@ -36,8 +38,6 @@ Copy .env.example to .env and set:
 ~~~env
 GOOGLE_MAPS_API_KEY=your_google_maps_api_key
 OPENROUTER_API_KEY=your_openrouter_api_key
-FRONTEND_URLS=http://localhost:5173,http://127.0.0.1:5173
-PORT=8000
 ~~~
 
 Run:
@@ -48,11 +48,10 @@ python api.py
 
 The FastAPI application listens on port 8000 by default.
 
-- GET /health
 - POST /recommend
 - GET /docs
 
-The browser origin allowlist is read from FRONTEND_URLS. The API does not use credentialed cookies and allows only GET, POST and OPTIONS by default.
+The current API does not expose /health. Its CORS middleware currently allows all origins, credentials, methods and headers; do not expose it publicly until the separate API hardening change is applied.
 
 ## Run the optional Streamlit UI
 
