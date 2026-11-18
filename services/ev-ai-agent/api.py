@@ -48,7 +48,7 @@ async def health():
 
 
 @app.post("/recommend")
-async def recommend(request: RecommendationRequest):
+def recommend(request: RecommendationRequest):
     try:
         result = run_workflow(request.model_dump())
     except Exception:
