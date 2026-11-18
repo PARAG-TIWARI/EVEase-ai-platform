@@ -61,7 +61,7 @@ The root repository also contains an older Flask application. Review of server/a
 | SQL built with string interpolation | User ID, city, charger type and booking form values are interpolated into SQL in several Flask routes | User-controlled values can alter query structure; use parameterised SQL everywhere |
 | Destructive database setup | setup_db.py removes ev_db.sqlite if it exists before creating tables and sample data | Re-running setup deletes existing local records |
 
-The EV_DB.sql dump also contains demonstration account names/passwords in plaintext. Treat all such credentials as public sample data. Do not reuse them in any deployed environment.
+The EV_DB.sql dump also contains demonstration account names/passwords in plaintext. Treat all such credentials as public sample data. Do not reuse them in any deployed environment. The repository tree also contains a tracked server/ev_db.sqlite file. Its binary contents were not inspected in this review; check it locally for user records or other sensitive data before sharing or retaining it. Adding the file to .gitignore prevents future untracked copies from being added, but does not remove the already tracked file.
 
 **Recommendation:** keep this Flask app local as a legacy project demonstration, or replace its authentication and database layer before exposing it publicly. At minimum, use password hashing, a strong required secret from a secret manager, parameterised SQL, role-specific server-side checks, CSRF protection for state-changing form routes, and a migration that does not delete the database on startup.
 
