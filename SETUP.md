@@ -1,122 +1,147 @@
-# 🚀 EVEase — Setup & Run Guide
+# EVEase local setup guide
+
+This guide covers the React frontend, the FastAPI/LangGraph recommendation API, and the optional legacy Flask/SQLite prototype.
 
 ## Prerequisites
 
-| Tool | Version | Purpose |
-|------|---------|---------|
-| **Node.js** | 18+ | React frontend |
-| **Python** | 3.10+ | FastAPI + Flask backends |
-| **npm** | 9+ | Package management |
+- Node.js and npm (use client/package-lock.json with npm ci).
+- Python 3.10 or newer.
+- A Google Maps API key with Directions API access.
+- An OpenRouter API key.
+- Windows only for run_app.bat; individual services can be started manually on other platforms.
 
----
+## 1. AI recommendation API
 
-## Quick Start (Windows)
+Open a terminal from the repository root:
 
-The fastest way to launch everything:
-
-```bash
-# From the project root:
-run_app.bat
-```
-
-This opens **3 terminal windows** automatically:
-1. FastAPI AI Agent → `http://localhost:8000`
-2. Flask Backend → `http://localhost:5000`
-3. React Frontend → `http://localhost:5173`
-
----
-
-## Manual Start (Step by Step)
-
-### 1. Frontend (React + Vite)
-
-```bash
-cd client
-npm install
-npm run dev
-```
-
-Opens at: **http://localhost:5173**
-
-### 2. AI Agent Backend (FastAPI)
-
-```bash
+~~~powershell
 cd services/ev-ai-agent
-
-# Install dependencies
+py -3 -m venv .venv
+.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
 pip install -r requirements.txt
+Copy-Item .env.example .env
+~~~
 
-# Create .env file with your API keys
-cp .env.example .env
-# Edit .env and add your OPENAI_API_KEY and GOOGLE_MAPS_API_KEY
+Edit services/ev-ai-agent/.env:
 
-# Start the server
+~~~env
+GOOGLE_MAPS_API_KEY=your_google_maps_api_key
+OPENROUTER_API_KEY=your_openrouter_api_key
+FRONTEND_URLS=http://localhost:5173,http://127.0.0.1:5173
+PORT=8000
+~~~
+
+Run the API from services/ev-ai-agent:
+
+~~~powershell
 python api.py
-```
+~~~
 
-Runs at: **http://localhost:8000**  
-API Endpoint: `POST /recommend`
+The service listens on http://localhost:8000.
 
-### 3. Flask Backend (Optional)
+- Health check: GET http://localhost:8000/health
+- Interactive API documentation: http://localhost:8000/docs
+- Recommendation endpoint: POST http://localhost:8000/recommend
 
-```bash
+The API validates battery percentage (0–100) and basic string lengths. It has no user authentication or per-user rate limit, so keep it local or protect it behind an appropriate gateway before public exposure.
+
+### Optional Streamlit interface
+
+The same folder includes a separate Streamlit interface:
+
+~~~powershell
+streamlit run app.py
+~~~
+
+This is an alternative interface to the recommendation workflow; it is not the React frontend.
+
+## 2. React + Vite frontend
+
+Open a second terminal from the repository root:
+
+~~~powershell
+cd client
+npm ci
+Copy-Item .env.example .env.local
+~~~
+
+The example file sets:
+
+~~~env
+VITE_API_BASE_URL=http://localhost:8000
+~~~
+
+Start the frontend:
+
+~~~powershell
+npm run dev
+~~~
+
+Open http://localhost:5173.
+
+The AI Planner reads its API base URL from VITE_API_BASE_URL. Vite variables are public frontend configuration; do not put Google Maps or OpenRouter API keys in the client environment file.
+
+## 3. Optional legacy Flask + SQLite prototype
+
+This is a separate, older application path. It is not required for the React AI Planner and should be run only with disposable local data.
+
+From the repository root:
+
+~~~powershell
+py -3 -m venv server\.venv
+server\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+pip install -r requirements.txt
 cd server
-
-# Install dependencies
-pip install -r ../requirements.txt
-
-# Start the server
+python setup_db.py
 python app.py
-```
+~~~
 
-Runs at: **http://localhost:5000**
+The Flask prototype listens on http://localhost:5000.
 
----
+**Database warning:** server/setup_db.py deletes and recreates server/ev_db.sqlite every time it runs, then inserts demonstration accounts. Back up or move the database before running the script if it contains anything you need.
 
-## Environment Variables
+**Security warning:** the legacy Flask app has demo-grade authentication and authorisation weaknesses, including seeded plaintext credentials, a hard-coded fallback session secret and SQL statements built with user-provided values. Do not publish it on the internet or use real user data. See docs/architecture-and-prototype-limitations.md.
 
-### `services/ev-ai-agent/.env`
+## 4. Windows one-click launcher
 
-```env
-OPENAI_API_KEY=sk-your-key-here
-GOOGLE_MAPS_API_KEY=your-google-maps-key
-```
+After installing dependencies and creating the AI service .env, run run_app.bat from the repository root.
 
-### Root `.env`
+The launcher:
+- Uses services/ev-ai-agent/.venv when it exists, otherwise py -3.
+- Uses server/.venv when it exists, otherwise py -3.
+- Starts the React frontend after checking that client/node_modules exists.
 
-```env
-# Flask and database configuration
-SECRET_KEY=your-secret-key
-MYSQL_HOST=localhost
-MYSQL_USER=root
-MYSQL_PASSWORD=your-password
-MYSQL_DB=evease
-```
+The launcher does not install dependencies or create databases automatically.
 
----
+## 5. Quality checks
 
-## Test Login Credentials
+Frontend:
 
-The auth system is client-side for demo purposes. You can log in with **any username/password**. Use the role selector to test different access levels:
+~~~powershell
+cd client
+npm run lint
+npm run build
+~~~
 
-| Role | Selector Option | Access Level |
-|------|----------------|--------------|
-| Free | Standard User (Free) | Basic dashboard |
-| Premium | Elite Orchestrator (Premium) | AI Recommender + Consultant |
-| Admin | System Administrator | Admin Command Center |
+FastAPI health smoke test (with AI service dependencies installed and its .env configured):
 
----
+~~~powershell
+cd services/ev-ai-agent
+python -c "from fastapi.testclient import TestClient; from api import app; c=TestClient(app); print(c.get('/health').json())"
+~~~
+
+These are suggested checks. Do not report them as passing until you have run them locally or reviewed a passing CI run.
 
 ## Troubleshooting
 
-| Issue | Fix |
-|-------|-----|
-| `npm run dev` fails | Run `npm install` first |
-| AI Recommender returns error | Ensure FastAPI is running on port 8000 |
-| Google Maps not loading | Check your `GOOGLE_MAPS_API_KEY` in `.env` |
-| Blank page after login | Hard refresh with `Ctrl + Shift + R` |
-| Port already in use | Kill the process: `npx kill-port 5173` |
-
----
-
-© 2026 EVEase AI Platform — Parag Tiwari
+| Symptom | Check |
+| --- | --- |
+| Recommendation request fails | Confirm FastAPI is running and VITE_API_BASE_URL points to it |
+| CORS error | Add the exact frontend origin to FRONTEND_URLS, then restart FastAPI |
+| Google Maps route fails | Check the Directions API key, API enablement and provider quota; the code falls back to a fixed mock route on provider error |
+| AI explanation falls back | Check the OpenRouter key, model access and provider quota |
+| Frontend dependency error | Run npm ci from client/ |
+| run_app.bat cannot find Python | Install the Python launcher (py) or create the relevant local .venv |
+| Flask demo login/database issue | Recreate only a disposable local SQLite database with python setup_db.py; this overwrites the existing file |
